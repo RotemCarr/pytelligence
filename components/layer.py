@@ -1,6 +1,7 @@
 import numpy as np
 from typing import List
 from components.neuron import Neuron, InputNeuron
+from utils.activation_functions import sigmoid
 
 
 class Layer:
@@ -32,10 +33,10 @@ class Layer:
         return type(self)
 
     def _set_activation_vector(self):
-        self.activation_vector = [neuron.activation for neuron in self.neurons]
+        self.activation_vector = np.array([neuron.activation for neuron in self.neurons])
 
     def _set_bias_vector(self):
-        self.bias_vector = np.array(neuron.bias for neuron in self.neurons)
+        self.bias_vector = np.array([neuron.bias for neuron in self.neurons])
 
     def _connect_neurons(self, next_layer: _layer_type):
         for neuron in next_layer:
@@ -44,11 +45,16 @@ class Layer:
     def _set_weight_matrix(self, next_layer: _layer_type):
         self.weight_matrix = np.array([neuron.weight_vector for neuron in next_layer.neurons])
 
+    def _activate_layer(self, prev_layer: _layer_type):
+        self.activation_vector = sigmoid(
+            np.matmul(prev_layer.weight_matrix, prev_layer.activation_vector)
+            + self.bias_vector)
+
     @staticmethod
     def create_input_layer(neurons: List[InputNeuron]):
         layer = Layer(neurons)
         layer._set_activation_vector()
-        del layer.bias_vector
+        layer.bias_vector = np.array(len(neurons)*[0])
         return layer
 
     @staticmethod
@@ -58,6 +64,8 @@ class Layer:
         layer._set_bias_vector()
         prev_layer._connect_neurons(layer)
         prev_layer._set_weight_matrix(layer)
+        layer._activate_layer(prev_layer)
+
         return layer
 
     @staticmethod
