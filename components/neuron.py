@@ -1,6 +1,4 @@
 import random
-
-from utils.activation_functions import *
 import numpy as np
 
 
