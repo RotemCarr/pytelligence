@@ -50,6 +50,9 @@ class Layer:
             np.matmul(prev_layer.weight_matrix, prev_layer.activation_vector)
             + self.bias_vector)
 
+        for index, neuron in enumerate(self):
+            neuron.activation = self.activation_vector[index]
+
     @staticmethod
     def create_input_layer(neurons: List[InputNeuron]):
         layer = Layer(neurons)
